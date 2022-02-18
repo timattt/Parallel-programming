@@ -9,7 +9,7 @@
 2. Вводим команду:
 
 ```
-ssh -p 52960 LOGIN@remote.rdi.mipt.ru
+ssh -p 52960 LOGIN@remote.vdi.mipt.ru
 ```
 
 LOGIN выдают на парах.   
