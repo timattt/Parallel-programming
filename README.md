@@ -28,7 +28,7 @@ LOGIN выдают на парах.
 7. Компилируем:
 
 ```
-mpicc HellowWorld.c -o hello
+mpicc HelloWorld.c -o hello
 ```
 
 8. Вставляем в очередь
