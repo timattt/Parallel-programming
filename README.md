@@ -2,6 +2,11 @@
 
 Репозиторий с задачами по параллельному программированию.
 
+## Полезные ссылки
+
+* Команда [**qsub**](http://cluster2.inm.ras.ru/info/torque/)
+* Команда [**mpirun**](http://www.ccas.ru/mmes/educat/lab04k/01/mpirun.html)
+
 ## Нулевки
 
 ### HelloWorld
