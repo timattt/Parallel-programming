@@ -4,5 +4,5 @@
 
 ## Навигация
 
-* [**Задачи**](https://github.com/timattt/Project-PP/blob/master/Problems.md)
-* [**Полезные записи**](https://github.com/timattt/Project-PP/blob/master/Docs.md)
+* [**Задачи**](https://github.com/timattt/Project-PP/blob/master/About/Problems.md)
+* [**Полезные записи**](https://github.com/timattt/Project-PP/blob/master/About/Docs.md)
