@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
                 long double sum = 0;
                 long double val = EPSILON + 1;
 
-                for (i = 1 + my_rank;; i += commsize) {
+        for (i = 1 + my_rank;; i += commsize) {
                         val = 1.0 / (long double)(i);
                         if (val < EPSILON) {
                                 break;
