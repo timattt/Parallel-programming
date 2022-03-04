@@ -1,9 +1,9 @@
 #include <mpi.h>
 #include <stdio.h>
 
-client_loop: send disconnect: Connection reset
+#define N 21
 
-C:\Users\timat>gc, char *argv[]) {
+int main(int argc, char *argv[]) {
         int commsize = 0;
         int my_rank = 0;
         long long i = 0;
