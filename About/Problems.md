@@ -4,9 +4,13 @@
 
 ### HelloWorld
 
+[**КОД**](https://github.com/timattt/Project-PP/tree/master/Problems/HelloWorld)
+
 Просто вывести колличество исполнителей и номер каждого.
 
 ### Круговая пересылка
+
+[**КОД**](https://github.com/timattt/Project-PP/tree/master/Problems/CircularSend)
 
 Есть исполнители.
 Первый передает число следующему. Он увеличивает на 1. Пересылает следующему.
@@ -14,9 +18,13 @@
 
 ### Сумма гармонического ряда
 
+[**КОД**](https://github.com/timattt/Project-PP/tree/master/Problems/Harmonic)
+
 Посчитать сумму ряда 1/n
 
 ### Бонусная задача
+
+[**КОД**](https://github.com/timattt/Project-PP/tree/master/Problems/EulerNumber)
 
 (До 18.03)
 
@@ -24,8 +32,8 @@
 
 Два варианта:
 
-* Посчитать с точностью **long double** (легкий)
-* Посчитать первые N знаков
+* Посчитать с точностью **long double** (уже сделано)
+* Посчитать первые N знаков (**TODO**)
 
 **Алгоритм**:
 
