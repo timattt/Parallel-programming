@@ -87,7 +87,6 @@ void init_grid(Data* t, int M, int T) {
 
 void print_grid(Data* t, int rank) {
 	int i, j;
-	//ERROR("print grid");
 	for(i = 0; i < t->M; ++i) {
 		for(j = 0; j < t->T; ++j) {
 			printf("(rg= %d, i = %d, j = %d) %lf ", rank, i, j, t->arr[i][j]);
@@ -111,7 +110,6 @@ void solution(Data* t, double h, double tau) {		//calculate right_up
 	double l_up, l_down, r_down;
 	for(i = t->M - 2; i >= 0; i--) {
 		for(j = 1; j < t->T; ++j) {
-			//printf("i = %d, j = %d\n", i, j);
 			l_up = t->arr[i][j - 1];
 			l_down = t->arr[i + 1][j - 1];
 			r_down = t->arr[i + 1][j];
@@ -120,10 +118,9 @@ void solution(Data* t, double h, double tau) {		//calculate right_up
 }
 
 void union_result(Data* t, int rank) {
-	int i, j;
-	double reply;
-	for( i = t->M - 2; i >= 0; i--) {
-		for(j = 1; j < t->T; ++j) {
+	double reply = 0;
+	for(int i = t->M - 2; i >= 0; i--) {
+		for(int j = 1; j < t->T; ++j) {
 			MPI_Reduce(&(t->arr[i][j]), &(reply), 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 			if ( rank == 0 ) {
 				t->arr[i][j] = reply;
@@ -137,8 +134,10 @@ double calc_r_up(double l_down, double l_up, double r_down, double h, double tau
 } 
 
 void multi_solution(Data* t, double h, double tau, int rank, int commsize, MPI_Status status) {
-	int i, j;
-	double l_up, l_down, r_down, r_up;
+	double l_up = 0;
+	double l_down = 0;
+	double r_down = 0;
+	double r_up = 0;
 	int prev_proc = rank - 1;
 	int next_proc = rank + 1;
 	if ( rank == 0 ) {
@@ -148,18 +147,16 @@ void multi_solution(Data* t, double h, double tau, int rank, int commsize, MPI_S
 		next_proc = 0;
 	}
 	//printf("prev= %d, my = %d, next = %d\n", prev_proc, rank, next_proc);
-	for(i = t->M - 2 - rank; i >= 0; i = i - commsize) {
-		for(j = 1; j < t->T; ++j) {
+	for(int i = t->M - 2 - rank; i >= 0; i = i - commsize) {
+		for(int j = 1; j < t->T; ++j) {
 			if ( i == t->M - 2 ) {	
 				l_up = t->arr[i][j - 1];
                         	l_down = t->arr[i + 1][j - 1];
                         	r_down = t->arr[i + 1][j];
 				t->arr[i][j] = calc_r_up(l_down, l_up, r_down, h, tau, i, j);
 				r_up = t->arr[i][j];
-				//MPI_Send(&(t->arr[i][j]), 1, MPI_FLOAT, next_proc, j, MPI_COMM_WORLD);		//send r_up
 			}
 			else {
-				//printf("WAIT\n");
 				MPI_Recv(&(r_down), 1, MPI_DOUBLE, prev_proc, j, MPI_COMM_WORLD, &status);		//recv r_down	
 				l_up = t->arr[i][j - 1];
                                 if ( j == 1 ) {
