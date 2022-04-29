@@ -121,7 +121,9 @@ void union_result(Data* t, int rank) {
 	double reply = 0;
 	for(int i = t->M - 2; i >= 0; i--) {
 		for(int j = 1; j < t->T; ++j) {
+			// суммируем все, что насчитали
 			MPI_Reduce(&(t->arr[i][j]), &(reply), 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+			// корневой процесс забирает результат
 			if ( rank == 0 ) {
 				t->arr[i][j] = reply;
 			}
@@ -149,6 +151,7 @@ void multi_solution(Data* t, double h, double tau, int rank, int commsize, MPI_S
 	//printf("prev= %d, my = %d, next = %d\n", prev_proc, rank, next_proc);
 	for(int i = t->M - 2 - rank; i >= 0; i = i - commsize) {
 		for(int j = 1; j < t->T; ++j) {
+			// Если обрабатываем самую первую строку, то получать данные не нужно
 			if ( i == t->M - 2 ) {	
 				l_up = t->arr[i][j - 1];
                         	l_down = t->arr[i + 1][j - 1];
@@ -156,15 +159,16 @@ void multi_solution(Data* t, double h, double tau, int rank, int commsize, MPI_S
 				t->arr[i][j] = calc_r_up(l_down, l_up, r_down, h, tau, i, j);
 				r_up = t->arr[i][j];
 			}
+			// Для всех остальных строк получаем данные из предыдушей строк у другого процесса
 			else {
-				MPI_Recv(&(r_down), 1, MPI_DOUBLE, prev_proc, j, MPI_COMM_WORLD, &status);		//recv r_down	
+				MPI_Recv(&(r_down), 1, MPI_DOUBLE, prev_proc, j, MPI_COMM_WORLD, &status);
 				l_up = t->arr[i][j - 1];
                                 if ( j == 1 ) {
 					l_down = t->arr[i + 1][j - 1];
 				}	
 				t->arr[i][j] = calc_r_up(l_down, l_up, r_down, h, tau, i, j);
 				r_up = t->arr[i][j];
-				l_down = r_down; 		//IMPORTANT ACTION
+				l_down = r_down;// здесь сдвигаем и созраняем значение, полученное от предыдущего процесса, чтобы его потом использовать
 			}
 			MPI_Send(&(r_up), 1, MPI_DOUBLE, next_proc, j, MPI_COMM_WORLD);
 		}
