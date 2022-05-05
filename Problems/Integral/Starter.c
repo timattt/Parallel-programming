@@ -15,7 +15,7 @@ int main (int argc, char * argv[]) {
 	double dx = 0;
 	
 	LOUD_CALL(cpuCount = STRING_TO_INT(argv[1]));
-	LOUD_CALL(dx = STRING_TO_INT(argv[2]));
+	LOUD_CALL(dx = STRING_TO_DOUBLE(argv[2]));
 	
 	if (cpuCount <= 0) {
 		printf("bad arg!\n");

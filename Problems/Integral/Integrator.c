@@ -46,7 +46,7 @@ double STRING_TO_DOUBLE(char *str) {
 		return -1;
 	}
 
-	if (errno == ERANGE && (input == DOUBLE_MAX || input == DOUBLE_MIN)) {
+	if (errno == ERANGE && (input == DBL_MAX || input == DBL_MIN)) {
 		return -1;
 	}
 
@@ -189,7 +189,7 @@ void* calc(void* args) {
 	double x = start;
 
 	 for (; x < finish; x += delta) {
-		((CalculateData*)args)->result /*result*/ += func(x) * DX;
+		((CalculateData*)args)->result /*result*/ += func(x) * delta;
 	}
 
 	return NULL;
