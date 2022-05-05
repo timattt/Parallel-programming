@@ -166,7 +166,7 @@ int initCpus(SysInfo * si, unsigned cpuCount) {
 }
 
 double func(double x) {
-	return x * x;
+	return sin(1/x);
 }
 
 void* calc(void* args) {
@@ -245,20 +245,17 @@ double runCalculations(SysInfo * si, unsigned cpuCount, double a, double b, doub
 	char * data = NULL;
 	LOUD_CALL(createThreadsBuffers(cpuCount, &data, &bufSize));
 
-	double len = 1/a - 1/b;//длина отрезка в синусе
-	int N = len / (2*3.1415);//кол периодов синуса
-	
+	double len = 1.0/a - 1.0/b;//длина отрезка в синусе
 
 	for (unsigned i = 0; i < cpuCount; i++) {
 		CalculateData * cur = (CalculateData*) (data + i * bufSize);
 
 		*cur = (CalculateData) {
-				1.0 / (1/b + len*(i+1)/N),
-				1.0 / (1/b + len*i/N),
+				1.0 / (1/b + len*((double)i+1.0)/(double)cpuCount),
+				1.0 / (1/b + len*(double)i/(double)cpuCount),
 				0,
 				si->virtual_cpu_sets[i % si->total_available_virtual_cpus], dx
             		};
-
         }
 
 	// Start threads
@@ -276,7 +273,7 @@ double runCalculations(SysInfo * si, unsigned cpuCount, double a, double b, doub
 	// Finish threads
 	//----------------------------
 	double result = 0;
-	for (unsigned i = 0; i < MAX(cpuCount, si->total_available_virtual_cpus); i++) {
+	for (unsigned i = 0; i < cpuCount; i++) {
 		LOUD_CALL(pthread_join(threads[i], NULL));
 		CalculateData * cur = (CalculateData*) (data + i * bufSize);
 		if (i < cpuCount) {
