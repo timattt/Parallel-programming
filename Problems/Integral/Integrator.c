@@ -236,41 +236,34 @@ int createThreadsBuffers(int total, char ** dat, int * bufSize) {
 
 double runCalculations(SysInfo * si, unsigned cpuCount, double a, double b, double dx) {
 	SAFE_PTR(si);
-	double begin = a;
-	double size = (double)(b - a) / (double) cpuCount;
-	pthread_t * threads = calloc(MAX(cpuCount, si->total_available_virtual_cpus), sizeof(pthread_t));
+
+	pthread_t * threads = calloc(cpuCount, sizeof(pthread_t));
 	if (!threads) {
 		return -1;
 	}
 	int bufSize = 0;
 	char * data = NULL;
-	LOUD_CALL(createThreadsBuffers(MAX(cpuCount, si->total_available_virtual_cpus), &data, &bufSize));
+	LOUD_CALL(createThreadsBuffers(cpuCount, &data, &bufSize));
 
-	for (unsigned i = 0; i < MAX(cpuCount, si->total_available_virtual_cpus); i++) {
+	double len = 1/a - 1/b;//длина отрезка в синусе
+	int N = len / (2*3.1415);//кол периодов синуса
+	
+
+	for (unsigned i = 0; i < cpuCount; i++) {
 		CalculateData * cur = (CalculateData*) (data + i * bufSize);
 
-		if (i < cpuCount) {
-			*cur = (CalculateData) {
-				begin,
-				begin + size,
+		*cur = (CalculateData) {
+				1.0 / (1/b + len*(i+1)/N),
+				1.0 / (1/b + len*i/N),
 				0,
 				si->virtual_cpu_sets[i % si->total_available_virtual_cpus], dx
             		};
-            	} else {
-            		*cur = (CalculateData) {
-				a,
-				a + (b - a) / (double)(cpuCount),
-				0,
-				si->virtual_cpu_sets[i % si->total_available_virtual_cpus], dx
-            		};
-            	}
 
-            	begin += size;
         }
 
 	// Start threads
 	//----------------------------
-	for (unsigned i = 0; i < MAX(cpuCount, si->total_available_virtual_cpus); i++) {
+	for (unsigned i = 0; i < cpuCount; i++) {
 	CalculateData * cur = (CalculateData*) (data + i * bufSize);
 		if (pthread_create(&threads[i], NULL, &calc, (data + i * bufSize)) != 0)
     {
