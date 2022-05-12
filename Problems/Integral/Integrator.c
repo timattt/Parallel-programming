@@ -3,11 +3,11 @@
 //==========================================================================================
 // Structs
 typedef struct CalculateData {
-    double a;
-    double b;
-    double result;
+    long double a;
+    long double b;
+    long double result;
     cpu_set_t cpuset;
-	double dx;
+	long double dx;
 } CalculateData;
 
 typedef struct SysInfo {
@@ -165,7 +165,7 @@ int initCpus(SysInfo * si, unsigned cpuCount) {
 	return 0;
 }
 
-double func(double x) {
+double func(long double x) {
 	return sin(1/x);
 }
 
@@ -174,10 +174,10 @@ void* calc(void* args) {
 
 	cpu_set_t cpuset = ((CalculateData*)args)->cpuset;
 	pthread_t current_thread = pthread_self();
-	double start = ((CalculateData*)args)->a;
-	double finish = ((CalculateData*)args)->b;
-	double delta = ((CalculateData*)args)->dx;
-	double result = 0;
+	long double start = ((CalculateData*)args)->a;
+	long double finish = ((CalculateData*)args)->b;
+	long double delta = ((CalculateData*)args)->dx;
+	long double result = 0;
 
 	if (pthread_setaffinity_np(current_thread, sizeof(cpu_set_t), &cpuset) == 0) {
 		perror("bad");
@@ -186,10 +186,10 @@ void* calc(void* args) {
 
 	data->result = 0;
 
-	double x = start;
-
+	long double x = start;
+   // printf("%Lf\n", (finish - start)/delta);
 	 for (; x < finish; x += delta) {
-		((CalculateData*)args)->result /*result*/ += func(x) * delta;
+		((CalculateData*)args)->result /*result*/ += func(1/x) * (1/x-1/(fmin(finish, x+delta)));
 	}
 
 	return NULL;
@@ -234,7 +234,7 @@ int createThreadsBuffers(int total, char ** dat, int * bufSize) {
 	return 0;
 }
 
-double runCalculations(SysInfo * si, unsigned cpuCount, double a, double b, double dx) {
+double runCalculations(SysInfo * si, unsigned cpuCount, double a, double b) {
 	SAFE_PTR(si);
 
 	pthread_t * threads = calloc(cpuCount, sizeof(pthread_t));
@@ -245,17 +245,18 @@ double runCalculations(SysInfo * si, unsigned cpuCount, double a, double b, doub
 	char * data = NULL;
 	LOUD_CALL(createThreadsBuffers(cpuCount, &data, &bufSize));
 
-	double len = 1.0/a - 1.0/b;//длина отрезка в синусе
-
+	long double len = (1.0/a - 1.0/b)/cpuCount;//длина отрезка в синусе
 	for (unsigned i = 0; i < cpuCount; i++) {
 		CalculateData * cur = (CalculateData*) (data + i * bufSize);
 
 		*cur = (CalculateData) {
-				1.0 / (1/b + len*((double)i+1.0)/(double)cpuCount),
-				1.0 / (1/b + len*(double)i/(double)cpuCount),
-				0,
-				si->virtual_cpu_sets[i % si->total_available_virtual_cpus], dx
+                (1/a - len * (i+1)),
+                (1/a - len * i),
+                0,
+				si->virtual_cpu_sets[i],
+                M_PI/10000.0
             		};
+        //printf("%lf %lf\n", cur->a, cur->b);
         }
 
 	// Start threads
@@ -301,12 +302,12 @@ int cleanup(SysInfo * si) {
 //==========================================================================================
 // Global functions
 
-double integrate(unsigned cpuCount, double a, double b, double dx) {
+double integrate(unsigned cpuCount, double a, double b) {
 	double result = 0;
 	SysInfo * info = calloc(1, sizeof(SysInfo));
 
 	LOUD_CALL(initCpus(info, cpuCount));
-	LOUD_CALL(result = runCalculations(info, cpuCount, a, b, dx));
+	LOUD_CALL(result = runCalculations(info, cpuCount, a, b));
 	LOUD_CALL(cleanup(info));
 
 	return result;

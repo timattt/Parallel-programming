@@ -5,7 +5,7 @@
 int main (int argc, char * argv[]) {
 	//ENABLE_DEBUG;
 
-	if (argc != 3) {
+	if (argc != 2) {
 		printf("Strange quantity of arguments!\n");
 		return 0;
 	}
@@ -15,14 +15,13 @@ int main (int argc, char * argv[]) {
 	double dx = 0;
 	
 	LOUD_CALL(cpuCount = STRING_TO_INT(argv[1]));
-	LOUD_CALL(dx = STRING_TO_DOUBLE(argv[2]));
 	
 	if (cpuCount <= 0) {
 		printf("bad arg!\n");
 		exit(0);
 	}
 	
-	LOUD_CALL(result = integrate(cpuCount, A, B, dx));
+	LOUD_CALL(result = integrate(cpuCount, A, B));
 	printf("%f\n", result);
 
 	return 0;
