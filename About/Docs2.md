@@ -160,3 +160,12 @@ printf("B");
 ```
 #pragma omp threadprivate(var1, var2...)
 ```
+
+### mutex (замки)
+
+```
+omp_set_lock(omp_lock * lock)
+```
+
+Заходя в эту функцию, ждет, пока параметр не освободится.
+Аналог критической секции.
