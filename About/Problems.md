@@ -15,3 +15,4 @@
 * [**Сумма арифметической прогрессии**](https://github.com/timattt/Project-PP/tree/master/Problems2/Sum_Task2)
 * [**Упоротая почти рекурсивная формула**](https://github.com/timattt/Project-PP/tree/master/Problems2/Formula_Task3)
 * [**Умножение матриц**](https://github.com/timattt/Project-PP/tree/master/Problems2/MatrixMul_Task4)
+* [**Вычисление числа PI**](https://github.com/timattt/Project-PP/tree/master/Problems2/Pi_Task5)
