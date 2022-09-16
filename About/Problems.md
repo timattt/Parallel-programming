@@ -19,3 +19,4 @@
 * [**Решето Эратосфена**](https://github.com/timattt/Project-PP/tree/master/Problems2/Sieve_Task6)
 * [**Решение уравнения теплопроводности**](https://github.com/timattt/Project-PP/tree/master/Problems2/Thermal_Task7)
 * [**Сортировка**](https://github.com/timattt/Project-PP/tree/master/Problems2/Sort_Task8)
+* [**Странный дебаг**](https://github.com/timattt/Project-PP/blob/master/Problems2/Debug_Task9/Readme.md)
