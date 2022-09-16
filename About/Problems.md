@@ -17,3 +17,4 @@
 * [**Умножение матриц**](https://github.com/timattt/Project-PP/tree/master/Problems2/MatrixMul_Task4)
 * [**Вычисление числа PI**](https://github.com/timattt/Project-PP/tree/master/Problems2/Pi_Task5)
 * [**Решето Эратосфена**](https://github.com/timattt/Project-PP/tree/master/Problems2/Sieve_Task6)
+* [**Решение уравнения теплопроводности**](https://github.com/timattt/Project-PP/tree/master/Problems2/Thermal_Task7)
