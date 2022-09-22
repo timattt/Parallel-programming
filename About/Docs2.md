@@ -184,3 +184,21 @@ omp_set_lock(omp_lock * lock)
 * Текущее задание приостанавливается
 * Данное новое задание начианется немедленно
 * Родительское задание продолжается, когда новое задание будет завершено
+
+### Работа со связным списком
+
+```
+my_pointer = listhead;
+#pragma omp parallel
+{
+// первый поток распределяет задания другим потокам
+  #pragma omp single
+  {
+    while (my_pointer) {
+      #pragma omp task firstprivate(my_pointer)
+        do_independent_work(my_pointer);
+      my_pointer = my_pointer->next;
+    }
+  }
+}
+```
