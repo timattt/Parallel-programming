@@ -204,3 +204,27 @@ my_pointer = listhead;
 }
 ```
 
+### Зависимости
+
+Пример:
+```
+#pragma omp parallel
+#pragma omp single
+{
+
+#pragma omp task depend(out: x)
+  do1(); // 1
+#pragma omp task depend(in: x)
+  do2(); // 2
+#pragma omp task depend(in: x)
+  do3(); // 3
+  
+}
+```
+1 должна быть выполнена до начала 2 и 3.
+2 и 3 могут быть выполнены параллельно.
+
+Типы:
+
+* in - будет зависеть от предыдущих out, inout
+* out/inout - задача будет зависима от всех ранее сгенерированных задач
