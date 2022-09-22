@@ -192,6 +192,7 @@ my_pointer = listhead;
 #pragma omp parallel
 {
 // первый поток распределяет задания другим потокам
+// эта секция выолняется ровно одним потоком, все остальные ждут задачи (task)
   #pragma omp single
   {
     while (my_pointer) {
@@ -202,3 +203,4 @@ my_pointer = listhead;
   }
 }
 ```
+
