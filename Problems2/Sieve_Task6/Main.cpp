@@ -1,8 +1,6 @@
 #include <omp.h>
 #include <cstdio>
-#include <thread>
-#include <chrono>
-#include <windows.h>
+#include <cstring>
 #include <cmath>
 #include <algorithm>
 
