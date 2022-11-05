@@ -131,7 +131,7 @@ int main(int argc, char *argv[]) {
 		printf("Warning! The required temperature has not been reached\n");
 	}
 
-	printf("Average temperature after %d iterations: [%f], deltaTime=[%d] seconds\n", n, aver, (int)diff_t);
+	printf("Average temperature after %d iterations: [%f], deltaTime=[%d] seconds\n", k, aver, (int)diff_t);
 
 	return 0;
 }
