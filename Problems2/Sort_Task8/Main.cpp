@@ -5,41 +5,53 @@
 #include <iostream>
 
 #define TOTAL_THREADS 5
-#define ARRAY_MAX_SIZE 10
+#define ARRAY_MAX_SIZE 10000
 
 int arr[ARRAY_MAX_SIZE] = {0};
 int N = 0;
 
-void quickSort(int *a, int n) {
+int partition(int *a, int p, int r) {
+	int lt[r - p] = { 0 };
+	int gt[r - p] = { 0 };
 	int i = 0;
-	int j = n - 1;
-	int pivot = a[n / 2];
-	do {
-		while (a[i] < pivot) {
-			i++;
-		}
-		while (a[j] > pivot) {
-			j--;
-		}
-		if (i <= j) {
-			std::swap(a[i], a[j]);
-			i++;
-			j--;
-		}
-	} while (i <= j);
-#pragma omp task shared(a)
-	{
-		if (j > 0) {
-			quickSort(a, j + 1);
+	int j = 0;
+	int key = a[r];
+	int lt_n = 0;
+	int gt_n = 0;
+
+	for (i = p; i < r; i++) {
+		if (a[i] < a[r]) {
+			lt[lt_n++] = a[i];
+		} else {
+			gt[gt_n++] = a[i];
 		}
 	}
-#pragma omp task shared(a)
-	{
-		if (n > i) {
-			quickSort(a + i, n - i);
-		}
+
+	for (i = 0; i < lt_n; i++) {
+		a[p + i] = lt[i];
 	}
-#pragma omp taskwait
+
+	a[p + lt_n] = key;
+
+	for (j = 0; j < gt_n; j++) {
+		a[p + lt_n + j + 1] = gt[j];
+	}
+
+	return p + lt_n;
+}
+
+#define TASK_SIZE 100
+
+void quicksort(int *a, int p, int r) {
+	int div = 0;
+
+	if (p < r) {
+		div = partition(a, p, r);
+#pragma omp task shared(a) if(r - p > TASK_SIZE)
+		quicksort(a, p, div - 1);
+#pragma omp task shared(a) if(r - p > TASK_SIZE)
+		quicksort(a, div + 1, r);
+	}
 }
 
 void printArray(int arr[], int size) {
@@ -105,13 +117,7 @@ int main(int argc, char * argv[]) {
 
 	if (!cheat1() && !cheat2()) {
 		omp_set_num_threads(TOTAL_THREADS);
-
-#pragma omp parallel
-		{
-//section of code that must be run by a single available thread
-#pragma omp single nowait
-			quickSort(arr, N - 1);
-		}
+		quicksort(arr, 0, N-1);
 	}
 
 	printArray(arr, N);
