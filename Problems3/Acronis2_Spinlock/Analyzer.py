@@ -1,7 +1,7 @@
 import subprocess
 import matplotlib.pyplot as plt
 
-totalThreads = 8
+totalThreads = 7
 
 ts = []
 dts = []
