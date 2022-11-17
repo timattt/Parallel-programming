@@ -31,6 +31,9 @@ void tas_init() {
 
 void tas_lock() {
 	int expected = 0;
+	// если флаг равен expected, т.е. нулю, то кладем в него 1 и возвращается true. И происходит выход из цикла
+	// иначе приравниваем expected к 1 и возвращаем false. Цикл продолжается.
+	// параметр memory_order_relaxed гарантирует, что нет никакого ограничения на порядок, в котором потоки работают с переменной.
 	while (!tas_flag.compare_exchange_weak(expected, 1, std::memory_order_relaxed)) {
 		pause_thread();
 		expected = 0;
