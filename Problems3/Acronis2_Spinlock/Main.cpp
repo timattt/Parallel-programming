@@ -58,7 +58,8 @@ void ttas_lock() {
 	while (!ttas_flag.compare_exchange_weak(expected, 1, std::memory_order_relaxed)) {
 		expected = 0;
 
-		// Effective spin on RO
+		// операция атомарного обмена требует записи в кещ, но одновременно может туда писать только один поток.
+		// А вот читать могут несколько одновременно. Поэтому мы сначала дождемся, когда флаг освободится, а уже потом полезем его перезаписывать.
 		while (ttas_flag.load(std::memory_order_relaxed)) {
 			pause_thread();
 		}
