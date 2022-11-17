@@ -76,19 +76,26 @@ void ttas_unlock() {
 std::atomic<int> cur = {0}, last = {0};
 
 void tl_init() {
+	// это номер клиента, которого обслуживают в данный момент
 	cur = {0};
+	// это минимальный свободный номерок для нового клиента
 	last = {0};
 }
 
 void tl_lock() {
+	// получаем номерок.
+	// эта штука сначала возвращает старое значение, а потом уже прибавляет.
 	int index = last.fetch_add(1, std::memory_order_relaxed);
+	// ждем до тех пока, не подойдет очередь нашего номерка 
 	while (cur.load(std::memory_order_relaxed) != index) {
 		pause_asm_mem();
 	}
 }
 
 void tl_unlock() {
+	// высчитываем следующий номерок
 	int next_index = cur.load(std::memory_order_relaxed) + 1;
+	// говорим, что теперь используется он
 	cur.store(next_index, std::memory_order_relaxed);
 }
 //==============================================================================
