@@ -21,7 +21,7 @@ inline void pause_thread() {
     std::this_thread::yield();
 }
 
-// TAS
+// TAS = test and set
 //==============================================================================
 std::atomic<int> tas_flag = { 0 };
 
