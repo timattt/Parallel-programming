@@ -21,7 +21,7 @@ inline void pause_thread() {
     std::this_thread::yield();
 }
 
-// TAS
+// TAS = test and set
 //==============================================================================
 std::atomic<int> tas_flag = { 0 };
 
@@ -31,6 +31,9 @@ void tas_init() {
 
 void tas_lock() {
 	int expected = 0;
+	// если флаг равен expected, т.е. нулю, то кладем в него 1 и возвращается true. И происходит выход из цикла
+	// иначе приравниваем expected к 1 и возвращаем false. Цикл продолжается.
+	// параметр memory_order_relaxed гарантирует, что нет никакого ограничения на порядок, в котором потоки работают с переменной.
 	while (!tas_flag.compare_exchange_weak(expected, 1, std::memory_order_relaxed)) {
 		pause_thread();
 		expected = 0;
@@ -55,7 +58,8 @@ void ttas_lock() {
 	while (!ttas_flag.compare_exchange_weak(expected, 1, std::memory_order_relaxed)) {
 		expected = 0;
 
-		// Effective spin on RO
+		// операция атомарного обмена требует записи в кещ, но одновременно может туда писать только один поток.
+		// А вот читать могут несколько одновременно. Поэтому мы сначала дождемся, когда флаг освободится, а уже потом полезем его перезаписывать.
 		while (ttas_flag.load(std::memory_order_relaxed)) {
 			pause_thread();
 		}
@@ -72,19 +76,26 @@ void ttas_unlock() {
 std::atomic<int> cur = {0}, last = {0};
 
 void tl_init() {
+	// это номер клиента, которого обслуживают в данный момент
 	cur = {0};
+	// это минимальный свободный номерок для нового клиента
 	last = {0};
 }
 
 void tl_lock() {
+	// получаем номерок.
+	// эта штука сначала возвращает старое значение, а потом уже прибавляет.
 	int index = last.fetch_add(1, std::memory_order_relaxed);
+	// ждем до тех пока, не подойдет очередь нашего номерка 
 	while (cur.load(std::memory_order_relaxed) != index) {
 		pause_asm_mem();
 	}
 }
 
 void tl_unlock() {
+	// высчитываем следующий номерок
 	int next_index = cur.load(std::memory_order_relaxed) + 1;
+	// говорим, что теперь используется он
 	cur.store(next_index, std::memory_order_relaxed);
 }
 //==============================================================================
