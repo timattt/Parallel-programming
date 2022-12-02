@@ -8,7 +8,7 @@ dts = []
 
 index = 0
 
-names = ["balanced", "unbalanced"]
+names = ["balanced", "unbalanced", "locked"]
 
 process = subprocess.Popen('Debug/LockFreeStack.exe', stdout=subprocess.PIPE)
 while True:
