@@ -9,7 +9,7 @@
 #include <mutex>
 #include <stack>
 
-#define TOTAL_CYCLE 1000000
+#define TOTAL_CYCLE 100000
 #define MAX_THREADS 8
 
 // SLEEPS
@@ -272,12 +272,12 @@ private:
 };
 
 
-void worker(LockFreeStack * st, int (*token)(int index), int index) {
+void worker(LockFreeStack * st, int (*token)(int index, int id), int index) {
 	expBackoff bo = {0};
 	initBackOff(&bo);
 
 	for (int i = 0; i < TOTAL_CYCLE; i++) {
-		int d = token(i);
+		int d = token(i, index);
 		switch (d) {
 		case 0://push
 			st->Push(index, new LockFreeStack::Node, &bo);
@@ -289,12 +289,12 @@ void worker(LockFreeStack * st, int (*token)(int index), int index) {
 	}
 }
 
-void workerLocked(LockedStack * st, int (*token)(int index), int index) {
+void workerLocked(LockedStack * st, int (*token)(int index, int id), int index) {
 	expBackoff bo = {0};
 	initBackOff(&bo);
 
 	for (int i = 0; i < TOTAL_CYCLE; i++) {
-		int d = token(i);
+		int d = token(i, index);
 		switch (d) {
 		case 0://push
 			st->Push(rand());
@@ -306,7 +306,7 @@ void workerLocked(LockedStack * st, int (*token)(int index), int index) {
 	}
 }
 
-void test(int numThreads, int (*token)(int index)) {
+void test(int numThreads, int (*token)(int index, int id)) {
 	assert(numThreads < MAX_THREADS);
 
 	std::thread *threads[MAX_THREADS] = { 0 };
@@ -326,7 +326,7 @@ void test(int numThreads, int (*token)(int index)) {
 	}
 }
 
-void testLocked(int numThreads, int (*token)(int index)) {
+void testLocked(int numThreads, int (*token)(int index, int id)) {
 	assert(numThreads < MAX_THREADS);
 
 	std::thread *threads[MAX_THREADS] = { 0 };
@@ -346,7 +346,7 @@ void testLocked(int numThreads, int (*token)(int index)) {
 	}
 }
 
-long calcTime(int numThreads, int (*token)(int index)) {
+long calcTime(int numThreads, int (*token)(int index, int id)) {
 	auto time_begin = std::chrono::high_resolution_clock::now();
 	test(numThreads, token);
 	auto time_end = std::chrono::high_resolution_clock::now();
@@ -356,7 +356,7 @@ long calcTime(int numThreads, int (*token)(int index)) {
 	return dtime_ms;
 }
 
-long calcTimeLocked(int numThreads, int (*token)(int index)) {
+long calcTimeLocked(int numThreads, int (*token)(int index, int id)) {
 	auto time_begin = std::chrono::high_resolution_clock::now();
 	testLocked(numThreads, token);
 	auto time_end = std::chrono::high_resolution_clock::now();
@@ -366,7 +366,7 @@ long calcTimeLocked(int numThreads, int (*token)(int index)) {
 	return dtime_ms;
 }
 
-void groupTest(int (*token)(int index)) {
+void groupTest(int (*token)(int index, int id)) {
 	for (int numThreads = 1; numThreads < MAX_THREADS; numThreads++) {
 		long dt = calcTime(numThreads, token);
 		printf("%d %ld\n", numThreads, dt);
@@ -374,7 +374,7 @@ void groupTest(int (*token)(int index)) {
 	}
 }
 
-void groupTestLocked(int (*token)(int index)) {
+void groupTestLocked(int (*token)(int index, int id)) {
 	for (int numThreads = 1; numThreads < MAX_THREADS; numThreads++) {
 		long dt = calcTimeLocked(numThreads, token);
 		printf("%d %ld\n", numThreads, dt);
@@ -382,16 +382,16 @@ void groupTestLocked(int (*token)(int index)) {
 	}
 }
 
-int simpleToken(int v) {
+int simpleToken(int v, int id) {
 	return v % 2;
 }
 
-int balancedToken(int v) {
+int balancedToken(int v, int id) {
 	return rand() % 2;
 }
 
-int unbalancedToken(int v) {
-	return (int)(v / 1000) % 2;
+int unbalancedToken(int v, int id) {
+	return (id+(int)(v / 1000)) % 2;
 }
 
 int main(int argc, char *argv[]) {
