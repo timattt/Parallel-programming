@@ -59,15 +59,15 @@ public:
 	class TaggedPointer {
 	public:
 		TaggedPointer() :
-				m_node(nullptr), m_counter(0) {
+				node(nullptr), counter(0) {
 		}
 
 		Node* GetNode() {
-			return m_node.load(std::memory_order_acquire);
+			return node.load(std::memory_order_acquire);
 		}
 
 		uint64_t GetCounter() {
-			return m_counter.load(std::memory_order_acquire);
+			return counter.load(std::memory_order_acquire);
 		}
 
 		bool CompareAndSwap(Node *oldNode, uint64_t oldCounter, Node *newNode, uint64_t newCounter) {
@@ -86,8 +86,8 @@ public:
 
 private:
 
-		std::atomic<Node*> m_node;
-		std::atomic<uint64_t> m_counter;
+		std::atomic<Node*> node;
+		std::atomic<uint64_t> counter;
 	}
 
 	// у нас cas на 16 байт
@@ -99,20 +99,26 @@ private:
 
 		oldHead = head.GetNode();
 		oldCounter = head.GetCounter();
+
 		entry->next.store(oldHead, std::memory_order_relaxed);
+
 		return head.CompareAndSwap(oldHead, oldCounter, entry, oldCounter + 1);
 	}
 
 	bool TryPopStack(Node *&oldHead, int threadId) {
 		oldHead = head.GetNode();
 		uint64_t oldCounter = head.GetCounter();
+
 		if (oldHead == nullptr) {
 			return true;
 		}
+
 		hazards[threadId].store(oldHead, std::memory_order_seq_cst);
+
 		if (head.GetNode() != oldHead) {
 			return false;
 		}
+
 		return head.CompareAndSwap(oldHead, oldCounter, oldHead->next.load(std::memory_order_acquire), oldCounter + 1);
 	}
 
@@ -131,6 +137,7 @@ private:
 		Node *res = NULL;
 		while (true) {
 			if (TryPopStack(res, threadId)) {
+				// wait while node is free
 				while (res) {
 					bool ex = 1;
 					for (int i = 0; i < MAX_THREADS; i++) {
