@@ -97,23 +97,23 @@ private:
 		Node *oldHead = NULL;
 		uint64_t oldCounter = 0;
 
-		oldHead = m_head.GetNode();
-		oldCounter = m_head.GetCounter();
+		oldHead = head.GetNode();
+		oldCounter = head.GetCounter();
 		entry->next.store(oldHead, std::memory_order_relaxed);
-		return m_head.CompareAndSwap(oldHead, oldCounter, entry, oldCounter + 1);
+		return head.CompareAndSwap(oldHead, oldCounter, entry, oldCounter + 1);
 	}
 
 	bool TryPopStack(Node *&oldHead, int threadId) {
-		oldHead = m_head.GetNode();
-		uint64_t oldCounter = m_head.GetCounter();
+		oldHead = head.GetNode();
+		uint64_t oldCounter = head.GetCounter();
 		if (oldHead == nullptr) {
 			return true;
 		}
-		m_hazard[threadId * 8].store(oldHead, std::memory_order_seq_cst);
-		if (m_head.GetNode() != oldHead) {
+		hazards[threadId].store(oldHead, std::memory_order_seq_cst);
+		if (head.GetNode() != oldHead) {
 			return false;
 		}
-		return m_head.CompareAndSwap(oldHead, oldCounter, oldHead->next.load(std::memory_order_acquire), oldCounter + 1);
+		return head.CompareAndSwap(oldHead, oldCounter, oldHead->next.load(std::memory_order_acquire), oldCounter + 1);
 	}
 
 	void Push(Node *entry, expBackoff *bo) {
@@ -134,7 +134,7 @@ private:
 				while (res) {
 					bool ex = 1;
 					for (int i = 0; i < MAX_THREADS; i++) {
-						if (res == m_hazard[i * 8].load() && i != threadId) {
+						if (res == hazards[i].load() && i != threadId) {
 							backOff(bo);
 							ex = 0;
 						}
@@ -143,7 +143,7 @@ private:
 						break;
 					}
 				}
-				m_hazard[threadId * 8] = nullptr;
+				hazards[threadId] = nullptr;
 				return res;
 			}
 			backOff(bo);
@@ -152,8 +152,8 @@ private:
 
 private:
 
-	TaggedPointer m_head;
-	std::atomic<Node*> m_hazard[MAX_THREADS * 8];
+	TaggedPointer head;
+	std::atomic<Node*> hazards[MAX_THREADS];
 };
 
 
