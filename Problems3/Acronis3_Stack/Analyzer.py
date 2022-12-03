@@ -1,5 +1,8 @@
 import subprocess
 import matplotlib.pyplot as plt
+import cowsay
+
+cowsay.cow("Хочу отл!")
 
 totalThreads = 7
 

@@ -9,7 +9,7 @@
 #include <mutex>
 #include <stack>
 
-#define TOTAL_CYCLE 100000
+#define TOTAL_CYCLE 1000000
 #define MAX_THREADS 8
 
 // SLEEPS
@@ -189,7 +189,10 @@ private:
 
 		// may clean the list
 		for (int i = 0; i < FREELIST_SIZE; i++) {
-			delete freelist[i].exchange(nullptr, std::memory_order_relaxed);
+			Node * val = freelist[i].exchange(nullptr, std::memory_order_relaxed);
+			if (val != nullptr && canBeFreed(val)) {
+				delete val;
+			}
 		}
 	}
 
