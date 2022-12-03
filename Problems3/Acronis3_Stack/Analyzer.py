@@ -4,7 +4,7 @@ import cowsay
 
 cowsay.cow("Хочу отл!")
 
-totalThreads = 7
+totalThreads = 99
 
 ts = []
 dts = []

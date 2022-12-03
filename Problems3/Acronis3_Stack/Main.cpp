@@ -9,8 +9,10 @@
 #include <mutex>
 #include <stack>
 
-#define TOTAL_CYCLE 1000000
-#define MAX_THREADS 8
+#define TOTAL_CYCLE 10000
+#define MAX_THREADS 100
+
+int totalThreads = 0;
 
 // SLEEPS
 inline void pause_asm() {
@@ -171,7 +173,7 @@ private:
 	}
 
 	bool canBeFreed(Node * nd) {
-		for (int i = 0; i < MAX_THREADS; i++) {
+		for (int i = 0; i < totalThreads; i++) {
 			if (hazards[i].compare_exchange_weak(nd, nd, std::memory_order_relaxed)) {
 				return 0;
 			}
@@ -217,7 +219,7 @@ private:
 		if (pops[threadId].compare_exchange_weak(v, v)) {
 			return 1;
 		}
-		for (int i = 0; i < MAX_THREADS; i++) {
+		for (int i = 0; i < totalThreads; i++) {
 			v = 1;
 			if (pushs[threadId].compare_exchange_weak(v, 0)) {
 				dontWantPop(threadId);
@@ -232,7 +234,7 @@ private:
 		if (pushs[threadId].compare_exchange_weak(v, v)) {
 			return 1;
 		}
-		for (int i = 0; i < MAX_THREADS; i++) {
+		for (int i = 0; i < totalThreads; i++) {
 			v = 1;
 			if (pops[threadId].compare_exchange_weak(v, 0)) {
 				dontWantPush(threadId);
@@ -371,6 +373,7 @@ long calcTimeLocked(int numThreads, int (*token)(int index, int id)) {
 
 void groupTest(int (*token)(int index, int id)) {
 	for (int numThreads = 1; numThreads < MAX_THREADS; numThreads++) {
+		totalThreads = numThreads;
 		long dt = calcTime(numThreads, token);
 		printf("%d %ld\n", numThreads, dt);
 		fflush(stdout);
@@ -379,6 +382,7 @@ void groupTest(int (*token)(int index, int id)) {
 
 void groupTestLocked(int (*token)(int index, int id)) {
 	for (int numThreads = 1; numThreads < MAX_THREADS; numThreads++) {
+		totalThreads = numThreads;
 		long dt = calcTimeLocked(numThreads, token);
 		printf("%d %ld\n", numThreads, dt);
 		fflush(stdout);
