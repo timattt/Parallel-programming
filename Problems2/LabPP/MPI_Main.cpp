@@ -33,7 +33,7 @@ int main(int argc, char** argv){
         jend = JSIZE;
     }
 
-    double ** a = allocate(ISIZE, jend - jstart));
+    double ** a = allocate(ISIZE, jend - jstart);
 
     for (int i = 0; i < ISIZE; i++){
         for (int j = 0; j < jend - jstart; j++){
@@ -43,7 +43,7 @@ int main(int argc, char** argv){
 
     double start = MPI_Wtime();
     if (rank + 1 == size) {
-        for(int i = 2; i < ISIZE; i++) {
+        for(int i = 8; i < ISIZE; i++) {
             for(int j = 0; j < jend - jstart - 3; j++) {
                 if(j <= 8) {
                     send_data = a[i-8][j];
