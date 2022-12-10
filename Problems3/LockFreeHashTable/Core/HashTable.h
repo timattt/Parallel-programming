@@ -56,6 +56,8 @@ int conc_hashtable_insert(struct hashTable *ht, MAP_TYPE key, MAP_TYPE value);
 MAP_TYPE conc_hashtable_find(struct hashTable *ht, MAP_TYPE key);
 struct hashTable* conc_hashtable_create(int lock_value);
 MAP_TYPE conc_hashtable_delete (struct hashTable *ht, MAP_TYPE key);
+void dump_hash(struct hashTable *ht);
+void dump_hash_graphwiz(struct hashTable *ht, int id);
 
 // list
 struct node * list_find_hp(struct hashTable *ht, unsigned bucket, MAP_TYPE key, unsigned hash_code, struct node *** out_prev);

@@ -11,7 +11,7 @@ unsigned reverse_value(unsigned k) {
 }
 
 unsigned hash_key(MAP_TYPE key) {
-	return (unsigned) ((uintptr_t) (key) * 2654435761u);
+	return key;//(unsigned) ((uintptr_t) (key) * 2654435761u);
 }
 
 unsigned hash_regular_key(unsigned k) {

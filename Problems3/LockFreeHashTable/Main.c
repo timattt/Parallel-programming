@@ -17,7 +17,7 @@ int main() {
 	int ins = 0;
 	int er = 0;
 
-	for (int j = 0; j < 100000; j++) {
+	for (int j = 0; j < 10000; j++) {
 		int i = rand() % SZ;
 		switch (rand() % 3) {
 		case 0:
@@ -43,6 +43,25 @@ int main() {
 			break;
 		}
 	}
+
+	ht = conc_hashtable_create(0);
+
+	conc_hashtable_insert(ht, 0, 13);
+	conc_hashtable_insert(ht, 21, 14);
+	conc_hashtable_insert(ht, 22, 15);
+
+	dump_hash_graphwiz(ht, 0);
+
+	conc_hashtable_insert(ht, 11, 13);
+	conc_hashtable_insert(ht, 12, 14);
+
+	dump_hash_graphwiz(ht, 1);
+
+	conc_hashtable_insert(ht, 12, 14);
+
+	dump_hash_graphwiz(ht, 2);
+
+	//dump_hash(ht);
 
 	printf("total ins=%d, total erases=%d\n", ins, er);
 	printf("OK\n");
