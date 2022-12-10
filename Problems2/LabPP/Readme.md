@@ -30,10 +30,6 @@ $$
 
 ## Выполнение
 
-## Решение с OMP
-
-![image](https://user-images.githubusercontent.com/25401699/204332359-7ea14c88-4840-4b3c-b451-b70cdf005a7f.png)
-
 ## Решение с MPI
 
 ![image](https://user-images.githubusercontent.com/25401699/206786763-4bd3879a-ca88-45ac-b7a5-ebe2e1295e8f.png)
