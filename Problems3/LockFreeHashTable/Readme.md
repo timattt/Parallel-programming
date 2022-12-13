@@ -65,4 +65,13 @@ sentinel - лежит в данном bucket. Вторые - сами элеме
 
 ![image](https://user-images.githubusercontent.com/25401699/205920788-7a09b171-44c5-4928-9239-a31ebf5dbeb6.png)
 
+### Отрисовка содержимого
+
+Я добавил graphviz.
+Пример из статьи можно увидеть и в моей структуре данных.
+
+![image](https://user-images.githubusercontent.com/25401699/207375407-7298822a-6652-45ec-a3dd-f8de12e84dc5.png)
+
+![image](https://user-images.githubusercontent.com/25401699/207375462-902621bc-b582-4fd6-b8a8-54b3017fa4dd.png)
+
 
