@@ -32,7 +32,7 @@ void worker(SkipList * st, int (*token)(int index, int id), int index, RCUManage
 			}
 			rcu->startDeleting(index);
 			st->find_with_gc(nd->key, nullptr, nullptr);
-			delete nd;
+			//delete nd;
 			break;
 
 		case 2://contains
@@ -125,7 +125,7 @@ int main(int argc, char *argv[]) {
 	int ins = 0;
 	int er = 0;
 
-	for (int j = 0; j < 10000; j++) {
+	for (int j = 0; j < 100; j++) {
 		int i = rand() % SZ;
 		switch (rand() % 3) {
 		case 0:
@@ -151,6 +151,8 @@ int main(int argc, char *argv[]) {
 			break;
 		}
 	}
+
+	st->dump_graph(nullptr, nullptr);
 
 	//printf("total ins=%d, total erases=%d\n", ins, er);
 	//printf("OK\n");

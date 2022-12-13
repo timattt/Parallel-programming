@@ -46,22 +46,16 @@ int main() {
 
 	ht = conc_hashtable_create(0);
 
-	conc_hashtable_insert(ht, 0, 13);
-	conc_hashtable_insert(ht, 21, 14);
-	conc_hashtable_insert(ht, 22, 15);
+	conc_hashtable_insert(ht, 8, 17);
+	conc_hashtable_insert(ht, 2, 14);
+	conc_hashtable_insert(ht, 9, 15);
+	conc_hashtable_insert(ht, 13, 19);
 
 	dump_hash_graphwiz(ht, 0);
 
-	conc_hashtable_insert(ht, 11, 13);
-	conc_hashtable_insert(ht, 12, 14);
+	conc_hashtable_insert(ht, 10, 333);
 
 	dump_hash_graphwiz(ht, 1);
-
-	conc_hashtable_insert(ht, 12, 14);
-
-	dump_hash_graphwiz(ht, 2);
-
-	//dump_hash(ht);
 
 	printf("total ins=%d, total erases=%d\n", ins, er);
 	printf("OK\n");

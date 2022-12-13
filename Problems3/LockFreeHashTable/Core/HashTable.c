@@ -4,28 +4,39 @@ void initialize_bucket(struct hashTable *ht, struct node ** table, unsigned buck
 	struct node * res = NULL;
 	unsigned parent = get_parent(bucket);
 
+	// если ведра нету - добавляем его в список
 	if (atomic_load (&table [parent]) == NULL) {
 		initialize_bucket(ht, table, parent);
 	}
 
+	// создаем ноду
 	struct node *node = calloc(sizeof(struct node), 1);
 	node->key = (MAP_TYPE) bucket;
 	node->hash_code = hash_dummy_key(bucket);
 
+	// пихаем ноду в правильное место списка
 	res = list_insert_hp(ht, parent, node);
+
+	// если нода уже была - удаляем новую
 	if (get_node(res) != node) {
 		free(node);
 		node = get_node(res);
 	}
 
+	// пихаем ведро в таблицу
 	table = get_hazardous_pointer((void**) &ht->table, 1);
 	atomic_store(&table[bucket], mk_node(node, 0));
 }
 
 void resize_table(struct hashTable *ht, unsigned size) {
+	// создаем новую таблица в два раза больше
 	struct node **old_table = get_hazardous_pointer((void**) &ht->table, 0);
 	struct node **new_table = calloc(sizeof(struct node*), size * 2);
+
+	// пихаем в нее содержимое старой
 	memcpy(new_table, old_table, sizeof(struct node*) * size);
+
+	// атомарно пихаем новые значения
 	if (!atomic_compare_and_swap(&ht->size, size, size * 2)) {
 		free(new_table);
 		return;
@@ -38,22 +49,27 @@ void resize_table(struct hashTable *ht, unsigned size) {
 int conc_hashtable_insert(struct hashTable *ht, MAP_TYPE key, MAP_TYPE value) {
 	unsigned hash = hash_key(key);
 	struct node *node = calloc(sizeof(struct node), 1);
-	struct node * *table = get_hazardous_pointer((void**) &ht->table, 0);
+	struct node ** table = get_hazardous_pointer((void**) &ht->table, 0);
 
 	node->hash_code = hash_regular_key(hash);
 	node->key = key;
 	node->value = value;
 
+	// узнаем номер ведра
 	unsigned bucket = hash % ht->size;
-	if (table[bucket] == NULL)
+	// если ведра в такого еще нет - его надо создать и добавить в список
+	if (table[bucket] == NULL) {
 		initialize_bucket(ht, table, bucket);
+	}
 
+	// пытаемся теперь добавить обычную ноду, если такая уже есть - удаляем то, что создали
 	if (get_node(list_insert_hp(ht, bucket, node)) != node) {
 		free(node);
 		clear_hazardous_pointers();
 		return 0;
 	}
 
+	// если после добавления оказывается, что таблица полна - увеличиваем ее размер
 	float size = (float) ht->size;
 	if (atomic_fetch_and_inc (&ht->count) / size > LOAD_FACTOR) {
 		resize_table(ht, size);
@@ -65,18 +81,24 @@ int conc_hashtable_insert(struct hashTable *ht, MAP_TYPE key, MAP_TYPE value) {
 MAP_TYPE conc_hashtable_find(struct hashTable *ht, MAP_TYPE key) {
 	struct node * res = NULL;
 	struct node ** prev = NULL;
+
 	unsigned hash = hash_key(key);
 	unsigned bucket = hash % ht->size;
+
 	struct node * res_node = NULL;
 	struct node ** table = get_hazardous_pointer((void**) &ht->table, 0);
 
+	// создаем новое ведро при необходимости
 	if (table[bucket] == NULL) {
 		initialize_bucket(ht, table, bucket);
 	}
 
 	hash = hash_regular_key(hash);
+
+	// ищем элемент в списке
 	res = list_find_hp(ht, bucket, key, hash, &prev);
 	res_node = get_node(res);
+
 	if (res_node && res_node->hash_code == hash && res_node->key == key) {
 		MAP_TYPE val = -1;
 		if (ht->lock_value) {
@@ -110,17 +132,21 @@ MAP_TYPE conc_hashtable_delete(struct hashTable *ht, MAP_TYPE key) {
 	struct node ** table = get_hazardous_pointer ((void**)&ht->table, 0);
 	MAP_TYPE value = 0;
 
+	// создаем ведро при необходимости
 	if (table [bucket] == NULL) {
 		initialize_bucket (ht, table, bucket);
 	}
 
 	hash = hash_regular_key (hash);
+
+	// удаляем из списка
 	res = list_delete_hp (ht, bucket, key, hash);
 
 	if (!res) {
 		return -1;
 	}
 
+	// уменьшаем размер
 	atomic_fetch_and_dec (&ht->count);
 
 	if (ht->lock_value) {
@@ -178,12 +204,12 @@ void dump_hash_graphwiz(struct hashTable *ht, int id) {
 
 
 	fprintf(ff, "subgraph clusterbuckets {\n");
-	fprintf(ff, "style=filled;\ncolor=lightgrey;\n");
+	fprintf(ff, "style=filled;\ncolor=lightgrey;\nordering=\"out\"\n");
 	for (int i = 0; i < ht->size; ++i) {
 		if (ht->table[i]) {
 			fprintf(ff, "buc%d[label=\"%d\"];\n", i, i);
 		} else {
-			//fprintf(ff, "buc%d[label=\"empty\"]\n", i);
+			//fprintf(ff, "buc%d[label=\"%d\", color=black]\n", i, i);
 		}
 	}
 
