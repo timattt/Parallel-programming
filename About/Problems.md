@@ -21,3 +21,11 @@
 * [**Сортировка**](https://github.com/timattt/Project-PP/tree/master/Problems2/Sort_Task8)
 * [**Странный дебаг**](https://github.com/timattt/Project-PP/blob/master/Problems2/Debug_Task9/Readme.md)
 * [**Распараллеливание вложенных циклов**](https://github.com/timattt/Project-PP/tree/master/Problems2/LabPP)
+
+## Многопоточное программирование
+
+* [**Матрицы и кеш**](https://github.com/timattt/Project-PP/tree/master/Problems3/Acronis1_Matrix)
+* [**Spinlocks**](https://github.com/timattt/Project-PP/tree/master/Problems3/Acronis2_Spinlock)
+* [**Lock-free stack**](https://github.com/timattt/Project-PP/tree/master/Problems3/Acronis3_Stack)
+* [**Lock-free skiplist**](https://github.com/timattt/Project-PP/tree/master/Problems3/Acronis4_Skiplist)
+* [**Lock-free hash table**](https://github.com/timattt/Project-PP/tree/master/Problems3/LockFreeHashTable)
